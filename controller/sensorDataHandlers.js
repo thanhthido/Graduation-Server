@@ -1,37 +1,41 @@
-const datas = require('../models/SensorData')
+const SensorData = require('../models/SensorData')
 
-const getAllSensorData = (req, res) => {
-	res.status(200).json([...datas])
-}
-
-const postDataHandler = (req, res) => {
+const getAllSensorData = async (req, res) => {
 	try {
-		const sensorData = req.body
-		datas.push(sensorData)
-		res.status(200).json({ message: 'Thanh cong them vao database' })
+		const sensorDataList = await SensorData.find({}, { __v: 0 })
+		res.status(200).json(sensorDataList)
 	} catch (error) {
-		res.status(403).json({ message: error.message })
+		res.status(404).json({ message: error.message })
 	}
 }
 
-function mapData(type) {
-	let mapDesiredData = [...datas]
+const mapData = async (type) => {
+	const sensorDataList = await SensorData.find()
 
-	if (type === 'temperature') {
-		mapDesiredData = datas.map((data) => data.temperature)
-	}
+	if (sensorDataList.length === 0) return []
 
-	if (type === 'humidity') {
-		mapDesiredData = datas.map((data) => data.humidity)
+	let mapDesiredData = []
+	const listOfType = ['temperature', 'co', 'no2', 'ch4', 'pm1', 'pm25', 'pm10']
+
+	for (let index = 0; index < listOfType.length; index++) {
+		const typeToCheck = listOfType[index]
+
+		if (typeToCheck === type) {
+			mapDesiredData = await SensorData.find({ type: `${type}` }, { __v: 0 })
+			break
+		}
 	}
 
 	return mapDesiredData
 }
 
-const getDataBasedType = (req, res) => {
-	const { type } = req.params
-	const responseData = mapData(type)
-	res.status(200).json(responseData)
+const getDataBasedType = async (req, res) => {
+	try {
+		const responseData = await mapData(req.query.type)
+		res.status(200).json(responseData)
+	} catch (error) {
+		res.status(404).json({ message: error.message })
+	}
 }
 
-module.exports = { getAllSensorData, postDataHandler, getDataBasedType }
+module.exports = { getAllSensorData, getDataBasedType }

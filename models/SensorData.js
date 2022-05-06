@@ -1,34 +1,18 @@
-const FakeSensorDatas = [
-	{
-		temperature: {
-			type: 'normal',
-			value: 43,
-			message: 'abc',
-		},
-		humidity: {
-			type: 'normal',
-			value: 24,
-			message: 'abc',
-		},
-	},
-	{
-		temperature: {
-			type: 'normal',
-			value: 44,
-			message: 'abc',
-		},
-		humidity: {
-			type: 'error',
-			value: 25,
-			message: 'abc',
-		},
-	},
-]
+const mongoose = require('mongoose')
 
-const humidityArray = FakeSensorDatas.filter((data) => {
-	return data.humidity
+const sensorDataSchema = mongoose.Schema({
+	type: String, // temp, humidity,...
+	value: Number,
+	event: {
+		type: String,
+		default: 'normal', // normal, error,...
+	},
+	time: {
+		type: Date,
+		default: new Date(),
+	},
 })
 
-const emptyData = []
+const SensorData = mongoose.model('SensorData', sensorDataSchema)
 
-module.exports = emptyData
+module.exports = SensorData
