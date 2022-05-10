@@ -2,14 +2,19 @@ const SensorData = require('../models/SensorData')
 
 const getAllSensorData = async (req, res) => {
 	try {
+		const { page = 1, limit = 15 } = req.query
 		const sensorDataList = await SensorData.find({}, { __v: 0 })
-		res.status(200).json(sensorDataList)
+			.limit(limit)
+			.skip((page - 1) * limit)
+		res
+			.status(200)
+			.json({ total: sensorDataList.length, page: page, sensorDataList })
 	} catch (error) {
-		res.status(404).json({ message: error.message })
+		res.status(500).json({ message: error.message })
 	}
 }
 
-const mapData = async (type) => {
+const mapData = async (type, page, limit) => {
 	const sensorDataList = await SensorData.find()
 
 	if (sensorDataList.length === 0) return []
@@ -22,6 +27,8 @@ const mapData = async (type) => {
 
 		if (typeToCheck === type) {
 			mapDesiredData = await SensorData.find({ type: `${type}` }, { __v: 0 })
+				.limit(limit)
+				.skip((page - 1) * limit)
 			break
 		}
 	}
@@ -31,10 +38,13 @@ const mapData = async (type) => {
 
 const getDataBasedType = async (req, res) => {
 	try {
-		const responseData = await mapData(req.query.type)
-		res.status(200).json(responseData)
+		const { page = 1, limit = 15 } = req.query
+		const responseData = await mapData(req.query.type, page, limit)
+		res
+			.status(200)
+			.json({ total: responseData.length, page: page, responseData })
 	} catch (error) {
-		res.status(404).json({ message: error.message })
+		res.status(500).json({ message: error.message })
 	}
 }
 
