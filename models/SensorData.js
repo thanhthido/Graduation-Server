@@ -7,10 +7,7 @@ const sensorDataSchema = mongoose.Schema({
 		type: String,
 		default: 'normal', // normal, error,...
 	},
-	time: {
-		type: Date,
-		default: new Date(),
-	},
+	time: Number,
 })
 
 const SensorData = mongoose.model('SensorData', sensorDataSchema)

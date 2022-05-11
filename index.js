@@ -39,7 +39,11 @@ client.on('connect', () => {
 client.on('message', async (topic, message) => {
 	if (topic === MQTT_TOPIC) {
 		const messageData = JSON.parse(message.toString())
-		const newSensorData = new SensorData(messageData)
+		const addTimeMessageData = {
+			time: Math.round(Date.now() / 1000),
+			...messageData,
+		}
+		const newSensorData = new SensorData(addTimeMessageData)
 		try {
 			await newSensorData.save()
 			console.log('save data thanh cong')
