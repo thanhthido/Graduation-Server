@@ -53,7 +53,7 @@ client.on('message', async (topic, message) => {
 const sensorDataRouter = require('./routes/sensorDataRoute')
 
 // constants
-const PORT = 5000
+const PORT = 8001
 const app = express()
 
 // middleWares

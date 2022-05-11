@@ -8,7 +8,11 @@ const getAllSensorData = async (req, res) => {
 			.skip((page - 1) * limit)
 		res
 			.status(200)
-			.json({ total: sensorDataList.length, page: page, sensorDataList })
+			.json({
+				total: sensorDataList.length,
+				page: parseInt(page),
+				sensorDataList,
+			})
 	} catch (error) {
 		res.status(500).json({ message: error.message })
 	}
@@ -40,9 +44,11 @@ const getDataBasedType = async (req, res) => {
 	try {
 		const { page = 1, limit = 15 } = req.query
 		const responseData = await mapData(req.query.type, page, limit)
-		res
-			.status(200)
-			.json({ total: responseData.length, page: page, responseData })
+		res.status(200).json({
+			total: responseData.length,
+			page: parseInt(page),
+			sensorDataList: responseData,
+		})
 	} catch (error) {
 		res.status(500).json({ message: error.message })
 	}
