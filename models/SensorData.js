@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const sensorDataSchema = mongoose.Schema({
 	type: String, // temp, humidity,...
 	value: Number,
+	msg: String,
 	event: {
 		type: String,
 		default: 'normal', // normal, error,...
