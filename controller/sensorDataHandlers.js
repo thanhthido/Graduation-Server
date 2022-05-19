@@ -53,6 +53,7 @@ const mapData = async (type, page, limit, event) => {
 			mapTypeList = await SensorData.find({ type: `${type}` }, { __v: 0 })
 				.limit(limit)
 				.skip((page - 1) * limit)
+				.sort({ time: -1 })
 			break
 		}
 	}
@@ -100,4 +101,100 @@ const getDataBasedType = async (req, res) => {
 	}
 }
 
-module.exports = { getAllSensorData, getDataBasedType }
+const mapLatestData = async () => {
+	const { value: tempValue } = await SensorData.find({
+		time: { $gt: 0 },
+		type: 'temperature',
+	})
+		.sort({ time: -1 })
+		.findOne(
+			{ type: 'temperature' },
+			{ _id: 0, __v: 0, event: 0, msg: 0, time: 0, type: 0 },
+		)
+
+	const { value: coValue } = await SensorData.find({
+		time: { $gt: 0 },
+		type: 'co',
+	})
+		.sort({ time: -1 })
+		.findOne(
+			{ type: 'co' },
+			{ _id: 0, __v: 0, event: 0, msg: 0, time: 0, type: 0 },
+		)
+
+	const { value: no2Value } = await SensorData.find({
+		time: { $gt: 0 },
+		type: 'no2',
+	})
+		.sort({ time: -1 })
+		.findOne(
+			{ type: 'no2' },
+			{ _id: 0, __v: 0, event: 0, msg: 0, time: 0, type: 0 },
+		)
+
+	const { value: ch4Value } = await SensorData.find({
+		time: { $gt: 0 },
+		type: 'ch4',
+	})
+		.sort({ time: -1 })
+		.findOne(
+			{ type: 'ch4' },
+			{ _id: 0, __v: 0, event: 0, msg: 0, time: 0, type: 0 },
+		)
+
+	const { value: pm25Value } = await SensorData.find({
+		time: { $gt: 0 },
+		type: 'pm25',
+	})
+		.sort({ time: -1 })
+		.findOne(
+			{ type: 'pm25' },
+			{ _id: 0, __v: 0, event: 0, msg: 0, time: 0, type: 0 },
+		)
+
+	const { value: pm1Value } = await SensorData.find({
+		time: { $gt: 0 },
+		type: 'pm1',
+	})
+		.sort({ time: -1 })
+		.findOne(
+			{ type: 'pm1' },
+			{ _id: 0, __v: 0, event: 0, msg: 0, time: 0, type: 0 },
+		)
+
+	const { value: pm10Value } = await SensorData.find({
+		time: { $gt: 0 },
+		type: 'pm10',
+	})
+		.sort({ time: -1 })
+		.findOne(
+			{ type: 'pm10' },
+			{ _id: 0, __v: 0, event: 0, msg: 0, time: 0, type: 0 },
+		)
+
+	const { time } = await SensorData.find({ time: { $gt: 0 } })
+		.sort({ time: -1 })
+		.findOne({ time: { $gt: 0 } })
+
+	return {
+		time,
+		tempValue,
+		coValue,
+		no2Value,
+		ch4Value,
+		pm25Value,
+		pm1Value,
+		pm10Value,
+	}
+}
+
+const getLatestData = async (req, res) => {
+	try {
+		const latestData = await mapLatestData()
+		res.status(200).json(latestData)
+	} catch (error) {
+		res.status(500).json({ message: error.message })
+	}
+}
+
+module.exports = { getAllSensorData, getDataBasedType, getLatestData }
