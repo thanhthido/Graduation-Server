@@ -5,24 +5,29 @@ const getAllSensorData = async (req, res) => {
 		const { page = 1, limit = 15, event } = req.query
 		let totalSensorData = 0
 
-		const sensorDataList = await SensorData.find({}, { __v: 0 })
-			.sort({ time: -1 })
-			.limit(limit)
-			.skip((page - 1) * limit)
+		let desiredArray = []
 
-		let desiredArray = [...sensorDataList]
+		if (event !== 'all') {
+			const sensorDataList = await SensorData.find(
+				{ event: `${event}` },
+				{ __v: 0 },
+			)
+				.sort({ time: -1 })
+				.limit(limit)
+				.skip((page - 1) * limit)
+			desiredArray = sensorDataList
 
-		if (event === 'normal') {
-			desiredArray = sensorDataList.filter(
-				(sensorData) => sensorData.event === 'normal',
-			)
-		} else if (event === 'error') {
-			desiredArray = sensorDataList.filter(
-				(sensorData) => sensorData.event === 'error',
-			)
+			totalSensorData = desiredArray.length
+		} else {
+			const getAllDataType = await SensorData.find({})
+			const sensorDataList = await SensorData.find({}, { __v: 0 })
+				.sort({ time: -1 })
+				.limit(limit)
+				.skip((page - 1) * limit)
+			desiredArray = sensorDataList
+
+			totalSensorData = getAllDataType.length
 		}
-
-		totalSensorData = desiredArray.length
 
 		res.status(200).json({
 			total: totalSensorData,
