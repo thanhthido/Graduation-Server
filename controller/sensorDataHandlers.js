@@ -8,6 +8,11 @@ const getAllSensorData = async (req, res) => {
 		let desiredArray = []
 
 		if (event !== 'all') {
+			const getAllDataType = await SensorData.find(
+				{ event: `${event}` },
+				{ __v: 0 },
+			)
+
 			const sensorDataList = await SensorData.find(
 				{ event: `${event}` },
 				{ __v: 0 },
@@ -17,7 +22,7 @@ const getAllSensorData = async (req, res) => {
 				.skip((page - 1) * limit)
 			desiredArray = sensorDataList
 
-			totalSensorData = desiredArray.length
+			totalSensorData = getAllDataType.length
 		} else {
 			const getAllDataType = await SensorData.find({})
 			const sensorDataList = await SensorData.find({}, { __v: 0 })
@@ -43,45 +48,50 @@ const mapData = async (type, page, limit, event) => {
 	const sensorDataList = await SensorData.find()
 
 	let mapTypeList = []
+	let totalMapTypeList = []
 	let totalDesiredData = 0
 
 	if (sensorDataList.length === 0) return { totalDesiredData, mapTypeList }
 
 	const listOfType = ['temperature', 'co', 'no2', 'ch4', 'pm1', 'pm25', 'pm10']
-	const listOfEvent = ['all', 'normal', 'error']
 
 	// for cho type
 	for (let index = 0; index < listOfType.length; index++) {
 		const typeToCheck = listOfType[index]
 
-		if (typeToCheck === type && type.length !== '') {
+		if (typeToCheck === type && type.length !== '' && event !== 'all') {
+			mapTypeList = await SensorData.find(
+				{ type: `${type}`, event: `${event}` },
+				{ __v: 0 },
+			)
+				.limit(limit)
+				.skip((page - 1) * limit)
+				.sort({ time: -1 })
+
+			totalMapTypeList = await SensorData.find({
+				type: `${type}`,
+				event: `${event}`,
+			})
+
+			break
+		}
+
+		if (typeToCheck === type && type.length !== '' && event === 'all') {
 			mapTypeList = await SensorData.find({ type: `${type}` }, { __v: 0 })
 				.limit(limit)
 				.skip((page - 1) * limit)
 				.sort({ time: -1 })
+
+			totalMapTypeList = await SensorData.find({
+				type: `${type}`,
+			})
+
 			break
 		}
 	}
 
 	let mapDesiredData = [...mapTypeList]
-	totalDesiredData = mapDesiredData.length
-
-	// for cho event
-	for (let index = 0; index < listOfEvent.length; index++) {
-		const eventToCheck = listOfEvent[index]
-
-		if (
-			eventToCheck === event &&
-			event.length !== '' &&
-			eventToCheck !== 'all'
-		) {
-			mapDesiredData = mapTypeList.filter(
-				(sensorData) => sensorData.event === event,
-			)
-			totalDesiredData = mapDesiredData.length
-			break
-		}
-	}
+	totalDesiredData = totalMapTypeList.length
 
 	return { totalDesiredData, mapDesiredData }
 }
