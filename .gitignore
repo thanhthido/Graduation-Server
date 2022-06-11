@@ -130,3 +130,5 @@ dist
 .pnp.*
 
 api-learn.drawio
+
+.idea
