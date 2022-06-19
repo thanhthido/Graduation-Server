@@ -5,21 +5,38 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const connectMqttBroker = require('./mqtt/MqttInstance')
 const sensorDataRouter = require('./routes/sensorDataRoute')
+mongoose.Promise = global.Promise;
 
 require('dotenv').config() // thu vien chay environment
 
 // Mongodb
 const SensorData = require('./models/SensorData')
 
+const {
+    DB_USER,
+    DB_PASSWORD,
+    DB_HOST,
+    DB_PORT,
+    DB_NAME,
+} = process.env;
+
+
+const mongoDbUrl= `mongodb://${DB_USER}:${DB_PASSWORD}@mongodb:27017/${DB_NAME}?authSource=admin`
+
+console.log('mongodb connection string:', mongoDbUrl)
 // connect voi lai mongodb
-;(async () => {
-    try {
-        await mongoose.connect(process.env.MONGODB_URL)
-        console.log('connect database thanh cong')
-    } catch (error) {
-        console.log(error)
-    }
-})()
+mongoose
+    .connect(mongoDbUrl, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    })
+    .then(() => {
+        console.log("Connected to the database!");
+    })
+    .catch(err => {
+        console.log("Cannot connect to the database!", err);
+        process.exit();
+    });
 
 // connect MQTT
 const client = connectMqttBroker(

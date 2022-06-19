@@ -10,10 +10,10 @@ const connectMqttBroker = (brokerUrl, mqttPort, username, password) => {
 		protocolVersion: 4,
 		reconnectPeriod: 1000,
 		connectTimeout: 30 * 1000,
-		clientId: '123455668913',
+		clientId: 'dsadsadasdsa213123123',
 		username,
 		password,
-		rejectUnauthorized: false,
+		rejectUnauthorized: true,
 	}
 
 	return mqtt.connect(host, options)
